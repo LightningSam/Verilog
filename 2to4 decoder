@@ -1,0 +1,40 @@
+// 2-to-4 Decoder Module
+module decoder_2to4(en, A, B, y);
+    input en, A, B;
+    output reg [3:0] y;
+
+    always @(en, A, B)
+    begin
+        if (en == 0) begin
+            if (A == 1'b0 && B == 1'b0) y = 4'b1110;
+            else if (A == 1'b0 && B == 1'b1) y = 4'b1101;
+            else if (A == 1'b1 && B == 1'b0) y = 4'b1011;
+            else if (A == 1'b1 && B == 1'b1) y = 4'b0111;
+            else y = 4'bxxxx;
+        end
+        else begin
+            y = 4'b1111;
+        end
+    end
+endmodule
+
+
+// Testbench
+module decoder_tb;
+    reg A, B, en;
+    wire [3:0] y;
+
+    decoder_2to4 dut (.en(en), .A(A), .B(B), .y(y));
+
+    initial begin
+        $monitor("Time=%0t | en=%b A=%b B=%b | y=%b", $time, en, A, B, y);
+
+        en = 1; A = 1'bx; B = 1'bx; #5;
+        en = 0; A = 1'b0; B = 1'b0; #5;
+        en = 0; A = 1'b0; B = 1'b1; #5;
+        en = 0; A = 1'b1; B = 1'b0; #5;
+        en = 0; A = 1'b1; B = 1'b1; #5;
+
+        $finish;
+    end
+endmodule
