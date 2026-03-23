@@ -1,0 +1,42 @@
+// 8-bit ALU Module
+module alu_8bit(a, b, alu_sel, alu_out);
+    input [7:0] a, b;
+    input [1:0] alu_sel;
+    output [7:0] alu_out;
+    reg [7:0] alu_result;
+
+    assign alu_out = alu_result;
+
+    always @(*) begin
+        case (alu_sel)
+            2'b00: alu_result = a + b;
+            2'b01: alu_result = a - b;
+            2'b10: alu_result = a * b;
+            2'b11: alu_result = a / b;
+            default: alu_result = a + b;
+        endcase
+    end
+endmodule
+
+
+// Testbench
+module alu_8bit_tb;
+    reg [7:0] a, b;
+    reg [1:0] alu_sel;
+    wire [7:0] alu_out;
+
+    alu_8bit dut (.a(a), .b(b), .alu_sel(alu_sel), .alu_out(alu_out));
+
+    initial begin
+        $monitor("Sel=%b | A=%h B=%h | Out=%h", alu_sel, a, b, alu_out);
+
+        a = 8'h03; b = 8'h02; // 
+
+        alu_sel = 2'b00; #5; // Add: 0C
+        alu_sel = 2'b01; #5; // Sub: 08
+        alu_sel = 2'b10; #5; // Mul: 14
+        alu_sel = 2'b11; #5; // Div: 05
+
+        $finish;
+    end
+endmodule
