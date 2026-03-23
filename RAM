@@ -1,0 +1,61 @@
+// 1KB RAM Module (1024 locations × 8-bit)
+module ram2(
+    input  [7:0] data_in,
+    input  [9:0] addr,
+    input  wr, cs,
+    output [7:0] data_out
+);
+
+    reg [7:0] mem [1023:0];
+
+    // Read operation (tri-state when chip not selected)
+    assign data_out = (cs && !wr) ? mem[addr] : 8'bz;
+
+    // Write operation
+    always @(*) begin
+        if (cs && wr)
+            mem[addr] = data_in;
+    end
+
+endmodule
+
+
+// Testbench
+module ram_test;
+
+    reg [9:0] address;
+    reg [7:0] data_in;
+    wire [7:0] data_out;
+    reg write, select;
+    integer k, myseed;
+
+    ram2 dut (
+        .data_in(data_in),
+        .data_out(data_out),
+        .addr(address),
+        .wr(write),
+        .cs(select)
+    );
+
+    initial begin
+        myseed = 30;
+
+        // Phase 1: Sequential Write
+        for (k = 0; k <= 10; k = k + 1) begin
+            address = k;
+            data_in = k * 2;
+            write = 1; select = 1; #2;
+            write = 0; select = 0; #2;
+        end
+
+        // Phase 2: Random Read
+        repeat (5) begin
+            #2 address = $random(myseed) % 11;
+            write = 0; select = 1;
+            #2 $display("Read Address = %0d, Data = %0d", address, data_out);
+        end
+
+        $finish;
+    end
+
+endmodule
