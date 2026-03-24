@@ -1,0 +1,60 @@
+
+module CLA (a, b, cin, S, cout);
+
+    input [3:0] a, b;
+    input cin;
+    output [3:0] S;
+    output cout;
+
+    wire [3:0] G, P;
+    wire c1, c2, c3;
+
+
+    assign G = a & b;
+    assign P = a ^ b;
+
+
+    assign c1 = G[0] | (P[0] & cin);
+
+    assign c2 = G[1] | (P[1] & G[0]) 
+                      | (P[1] & P[0] & cin);
+
+    assign c3 = G[2] | (P[2] & G[1]) 
+                      | (P[2] & P[1] & G[0]) 
+                      | (P[2] & P[1] & P[0] & cin);
+
+    assign cout = G[3] | (P[3] & G[2]) 
+                        | (P[3] & P[2] & G[1]) 
+                        | (P[3] & P[2] & P[1] & G[0]) 
+                        | (P[3] & P[2] & P[1] & P[0] & cin);
+
+
+    assign S[0] = P[0] ^ cin;
+    assign S[1] = P[1] ^ c1;
+    assign S[2] = P[2] ^ c2;
+    assign S[3] = P[3] ^ c3;
+
+endmodule
+
+
+
+module CLA_tb;
+
+    reg [3:0] A, B;
+    reg Cin;
+    wire [3:0] S;
+    wire Cout;
+
+    CLA cla_adder(A, B, Cin, S, Cout);
+
+    initial begin
+        $monitor("A=%b B=%b Cin=%b --> S=%b Cout=%b", A, B, Cin, S, Cout);
+
+        A = 4'b1010; B = 4'b1100; Cin = 0;
+        #5 A = 4'b1111; B = 4'b1100; Cin = 1;
+        #5 A = 4'b1011; B = 4'b0100; Cin = 0;
+        #5 A = 4'b1111; B = 4'b0001; Cin = 1;
+        #5 $finish;
+    end
+
+endmodule
